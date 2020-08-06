@@ -14,6 +14,10 @@ use Magento\Catalog\Model\Product\Attribute\Source\Status;
 use Magento\CatalogInventory\Api\StockConfigurationInterface;
 use Magento\ConfigurableProduct\Block\Product\View\Type\Configurable as Subject;
 
+use Magento\Framework\Json\EncoderInterface;
+use Magento\Framework\Json\DecoderInterface;
+use Magento\CatalogInventory\Api\StockRegistryInterface;
+
 class Configurable
 {
     /**
@@ -21,15 +25,27 @@ class Configurable
      */
     private $stockConfiguration;
 
+    protected $jsonEncoder;
+    protected $jsonDecoder;
+    protected $stockRegistry;
+
     /**
      * Configurable constructor
      *
      * @param StockConfigurationInterface $stockConfiguration
      */
     public function __construct(
-        StockConfigurationInterface $stockConfiguration
+        StockConfigurationInterface $stockConfiguration,
+
+		EncoderInterface $jsonEncoder,
+        		DecoderInterface $jsonDecoder,
+	 	StockRegistryInterface $stockRegistry
     ) {
         $this->stockConfiguration = $stockConfiguration;
+
+		$this->jsonDecoder = $jsonDecoder;
+        $this->jsonEncoder = $jsonEncoder;
+        $this->stockRegistry = $stockRegistry;
     }
 
     /**
@@ -59,4 +75,30 @@ class Configurable
         }
         return $subject->getData('allow_products');
     }
+
+    //DABEE FIX START
+    // Adding Quantitites for Storefront
+    public function aroundGetJsonConfig(
+        \Magento\ConfigurableProduct\Block\Product\View\Type\Configurable $subject,
+        \Closure $proceed
+    )
+    {
+        $quantities = [];
+        $config = $proceed();
+        $config = $this->jsonDecoder->decode($config);
+
+        foreach ($subject->getAllowProducts() as $product) {
+            $stockitem = $this->stockRegistry->getStockItem(
+                $product->getId(),
+                $product->getStore()->getWebsiteId()
+            );
+            $quantities[$product->getId()] = $stockitem->getQty();
+        }
+
+        $config['quantities'] = $quantities;
+
+        return $this->jsonEncoder->encode($config);
+    }
+    //DABEE FIX END
+
 }
