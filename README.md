@@ -10,6 +10,7 @@ Various Related Core Issues:
 
 Possibly some more too..
 
+**dabeedj: Added quantities info for storefront**
 
 # Whats it all about?
 
@@ -33,7 +34,7 @@ This is really temporary solution, we're hoping to get the issues fixed in the c
 
 - Add the module to composer:
 
-        composer require interjar/module-configurable-child-visibility
+        composer require dabeedj/module-configurable-child-visibility
 
 - Enable the module:
 
