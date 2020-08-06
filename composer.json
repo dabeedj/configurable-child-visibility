@@ -1,5 +1,5 @@
 {
-    "name": "interjar/module-configurable-child-visibility",
+    "name": "dabeedj/module-configurable-child-visibility",
     "description": "Magento 2.x Extension to prevent Out of Stock Children being removed from Used Product Collections.",
     "type": "magento2-module",
     "license": "MIT",
